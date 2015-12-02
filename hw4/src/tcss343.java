@@ -54,6 +54,7 @@ public class tcss343 {
 //		System.out.println("\n" + brute(n));
 //		sequence(sequenceBrute);
 //		System.out.println("\n" + vDC[n-1]);
+		System.out.println(brut());
 //		sequence(sequenceDC);
 //		System.out.println(dc(n)); 	
 	}
@@ -109,6 +110,23 @@ public class tcss343 {
 			temp = vDC[n-1];
 		}
 		return;
+	}
+	
+	static int brut() {
+		int v = posts.get(0).get(n-1);
+		int temp = 0;
+		int j;
+		for (int i = 1; i < Math.pow(2, n-2); i++) {
+			j = i & 0xffffffff;
+			for (int k = 0; k < 32; k++) {
+				if ((j & (1 << k)) == 1) { 
+					temp += posts.get(k).get(i);
+				}
+			}
+			v = Math.min(v, temp);
+			temp = 0;
+		}
+		return v;
 	}
 	
 	static void sequence(int[] seq) {
