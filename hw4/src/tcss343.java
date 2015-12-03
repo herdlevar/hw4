@@ -14,6 +14,7 @@ public class tcss343 {
 	static int[] sequenceDC;	
 	static int[] sequenceDP;
 	static int[] sequenceBrute;
+	static int[] sequenceFake;
 	static int[] vDC;
 	static List<ArrayList<Integer>> posts;
 	static int n;
@@ -45,18 +46,23 @@ public class tcss343 {
 		sequenceDP = new int[n];
 		sequenceDC = new int[n];
 		sequenceBrute = new int[n];
+		sequenceFake = new int[n];
 		vDC = new int[n];
 		
 		dynamicProgramming();		
-		
+		System.out.println("Brute:");
+		System.out.println(brute(n));	
+		sequence(sequenceBrute);
+		System.out.println("\nDivide and Conquer:");
+		System.out.println(divideConquer(n));
+		sequence(sequenceDC);
+		System.out.println("\nDynamic Programming:");
 		System.out.println(dynamicProgramming());
 		sequence(sequenceDP);
-//		System.out.println("\n" + brute(n));
-//		sequence(sequenceBrute);
-//		System.out.println("\n" + vDC[n-1]);
-		System.out.println(brut());
-//		sequence(sequenceDC);
-//		System.out.println(dc(n)); 	
+		System.out.println("\nDivide and Conquer with \"memory\":");
+		divideConquerFake(n);
+		System.out.println(vDC[n-1]);	
+		sequence(sequenceFake);
 	}
 	
 	static int dynamicProgramming() {
@@ -77,54 +83,52 @@ public class tcss343 {
 		return v[n-1];
 	} 
 	
-	static int brute(int n) {
+	static int divideConquer(int n) {
 		if (n == 2) {
-			sequenceBrute[0] = 0;
 			return posts.get(0).get(n-1);
 		}
 		int v = posts.get(0).get(n-1);
 		int temp = v;
 		for (int i = 1; i < n-1; i++) {
 			v = Math.min(v, posts.get(i).get(n-1) + brute(i+1));
-			if (temp != v) sequenceBrute[n-1] = i;
+			if (temp != v) sequenceDC[n-1] = i;
 			temp = v;
 		}		
 		return v;
 	}
 	
-	static void divideConquer(int n) {
+	static void divideConquerFake(int n) {
 		if (n == 2) {
-			sequenceDC[0] = -1;
-			sequenceDC[1] = 0;
+			sequenceFake[0] = -1;
+			sequenceFake[1] = 0;
 			vDC[0] = 0;
 			vDC[1] = posts.get(0).get(1);
 			return;
 		}
-		divideConquer(n-1);
+		divideConquerFake(n-1);
 		vDC[n-1] = posts.get(0).get(n-1);
-		sequenceDC[n-1] = 0;
+		sequenceFake[n-1] = 0;
 		int temp = vDC[n-1];
 		for (int i = 1; i < n; i++) {
 			vDC[n-1] = Math.min(vDC[n-1], posts.get(i).get(n-1) + vDC[i]);
-			if (temp != vDC[n-1]) sequenceDC[n-1] = i;
+			if (temp != vDC[n-1]) sequenceFake[n-1] = i;
 			temp = vDC[n-1];
 		}
 		return;
 	}
 	
-	static int brut() {
-		int v = posts.get(0).get(n-1);
-		int temp = 0;
-		int j;
-		for (int i = 1; i < Math.pow(2, n-2); i++) {
-			j = i & 0xffffffff;
-			for (int k = 0; k < 32; k++) {
-				if ((j & (1 << k)) == 1) { 
-					temp += posts.get(k).get(i);
-				}
-			}
-			v = Math.min(v, temp);
-			temp = 0;
+	static int brute(int n) {
+		if (n == 1) {
+			sequenceBrute[0] = -1;
+			return 0;
+		}
+		int v = posts.get(0).get(n-1) + brute (1);
+		sequenceBrute[n-1] = 0;
+		int temp = v;
+		for (int i = 2; i < n; i++) {
+			v = Math.min(v, brute(i) + posts.get(i-1).get(n-1));
+			if (temp != v) sequenceBrute[n-1] = i-1;
+			temp = v;
 		}
 		return v;
 	}
