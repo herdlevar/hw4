@@ -23,7 +23,6 @@ public class Bonus {
 				stones.add(0, new int[2]);
 				stones.get(0)[0] = scan.nextInt();
 				i++;
-				scan.close();
 				scan = new Scanner(args[i]);
 				stones.get(0)[1] = scan.nextInt();
 			}
@@ -66,22 +65,29 @@ public class Bonus {
 	}
 	
 	static public int[] bruteForce(boolean A[][]) {
-		int topCornerAndSize[] = {0,0,0};
+		int topCornerAndSize[] = new int[3];
+		int arraySize = A[0].length;
 
-		for(int x = 0; x < n; x++)
+		for(int x = 0; x < arraySize; x++)
 		{
-			for(int y = 0; y < n; y++)
+			for(int y = 0; y < arraySize; y++)
 			{
-				for(int testSize = 0; testSize < Math.min(n - x, n - y); testSize++)
+				for(int testSize = 1; testSize <= Math.min(arraySize - x, arraySize - y); testSize++)
 				{
-					if(canDrawSquare(A, x, y, testSize) && testSize + 1 > topCornerAndSize[2])
+					if(canDrawSquare(A, x, y, testSize))
 					{
-						topCornerAndSize[0] = x;
-						topCornerAndSize[1] = y;
-						topCornerAndSize[2] = testSize + 1;
-					} else {
+						if(testSize > topCornerAndSize[2])
+						{
+							topCornerAndSize[0] = x;
+							topCornerAndSize[1] = y;
+							topCornerAndSize[2] = testSize;
+						}
+					}
+					else
+					{
 						break;
 					}
+				
 				}
 			}
 		}
@@ -90,17 +96,14 @@ public class Bonus {
 	}
 	
 	static public boolean canDrawSquare(boolean A[][], int x, int y, int s) {
+		if(A[x][y] == true)
+			return false;
 		for(int i = x; i < (s + x); i++)
 		{
-			if(A[i][y+s]) {
-				return false;
-			}
-		}
-		
-		for(int j = y; j < (s + j)-1; j++)
-		{
-			if(A[x+s][j]) {
-				return false;
+			for(int j = y; j < (s + y); j++)
+			{
+				if(A[i][j] == true)
+					return false;
 			}
 		}
 	
