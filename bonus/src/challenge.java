@@ -3,7 +3,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Scanner;
 
-public class Bonus {
+public class challenge {
 	
 	static int n;
 	static int m;
