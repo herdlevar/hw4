@@ -25,13 +25,14 @@ public class tcss343 {
 	static int brute;
 
 	public static void main(String[] args) throws IOException {
-		createTestFiles();
-		brute = 0;
+		// createTestFiles();
+		
+		// Read the input file
 		Scanner scan = new Scanner(System.in);
 		Scanner scan2 = new Scanner("");
 		posts  = new ArrayList<ArrayList<Integer>>();
 		int offset = 0;
-		while (scan.hasNextLine()) {
+		while (scan.hasNextLine()) { // read each line
 			scan2 = new Scanner(scan.nextLine());
 			posts.add(new ArrayList<Integer>());
 			for (int j = 0; j < offset; j++) {
@@ -46,14 +47,16 @@ public class tcss343 {
 		scan.close();
 		scan2.close();
 		
-		n = posts.get(0).size();		
-		Set<Set<Integer>> bruteIndex = powerSet(n);
-		printSets(bruteIndex);
+		n = posts.get(0).size(); // find "n"		
+		// printSets(bruteIndex); // uncomment to check the indexes for brute force
+		
+		// initialize the sequence to recover path taken for each method
 		sequenceDP = new int[n];
 		sequenceDC = new int[n];
 		sequenceFake = new int[n];
-		vDC = new int[n];
+		vDC = new int[n]; // used for divide and conquer with memory
 		
+		// run all the tests
 		dynamicProgramming();		
 		System.out.println("Brute:");
 		System.out.println(brute(powerSet(n)));	
@@ -71,53 +74,56 @@ public class tcss343 {
 		System.out.println(vDC[n-1]);	
 		sequence(sequenceFake);
 	}
-	
+
+	// This function solves the problem using dynamic programming	
 	static int dynamicProgramming() {
-		int[] v = new int[n];
-		v[0] = 0;
-		v[1] = posts.get(0).get(1);
-		sequenceDP[0] = -1;
-		sequenceDP[1] = 0;
-		for (int i = 2; i < n; i++) {
-			v[i] = posts.get(0).get(i);
-			for (int j = 1; j < i; j++) {
-				v[i] = Math.min(v[i], posts.get(j).get(i) + v[j]);
-				if (v[i] == posts.get(j).get(i) + v[j]) {
-					sequenceDP[i] = j;
+		int[] v = new int[n]; 		// this array holds the minimum value for each "n"
+		v[0] = 0; 			// costs 0 to go nowhere
+		v[1] = posts.get(0).get(1);     // only 1 cost to go from post 1 to 2
+		sequenceDP[0] = -1;  		// represents where you came from
+		sequenceDP[1] = 0;		// came from post 1. (using 0 for indexing purposes)
+		for (int i = 2; i < n; i++) { 	// Start looking at post 3
+			v[i] = posts.get(0).get(i); 	// get the cost to get here from post 1
+			for (int j = 1; j < i; j++) {   // Now check all other cominations
+				v[i] = Math.min(v[i], posts.get(j).get(i) + v[j]);   // store the min cost to get here
+				if (v[i] == posts.get(j).get(i) + v[j]) { 		// if min changes update the sequence for how
+					sequenceDP[i] = j;				// you got here
 				}
 			}
 		}
-		return v[n-1];
+		return v[n-1]; // return the min value to get to the end
 	} 
 	
+	// this function solves the problem using divide and conquer
 	static int divideConquer(int n) {
-		if (n == 1) {
-			sequenceDC[0] = -1;
-			return 0;
+		if (n == 1) { // terminating case
+			sequenceDC[0] = -1; // where you came from (-1 to represent you are at the start)
+			return 0; 		// return 0 cause it costs nothing to get to the start
 		}
-		int v = posts.get(0).get(n-1);
-		int temp = v;
-		for (int i = 1; i < n-1; i++) {
-			v = Math.min(v, posts.get(i).get(n-1) + divideConquer(i+1));
-			if (temp != v) sequenceDC[n-1] = i;
-			temp = v;
+		int v = posts.get(0).get(n-1); // see how much it costs to get to post n from the start
+		int temp = v;			// used to see if better solution found
+		for (int i = 1; i < n-1; i++) { // check all other cases
+			v = Math.min(v, posts.get(i).get(n-1) + divideConquer(i+1)); // take minimun path
+			if (temp != v) sequenceDC[n-1] = i; // if solution updated, update the sequence for 
+			temp = v;				// how you got here
 		}		
-		return v;
+		return v; // return the minimum
 	}
 	
+	// This solves the problem using divide and conquer but remembers the solution to the overlapping sub problems
 	static void divideConquerFake(int n) {
-		if (n == 2) {
-			sequenceFake[0] = -1;
-			sequenceFake[1] = 0;
-			vDC[0] = 0;
-			vDC[1] = posts.get(0).get(1);
-			return;
+		if (n == 2) {	// here it stops when n = 2 cause why not
+			sequenceFake[0] = -1; // where you came from to get to the start
+			sequenceFake[1] = 0;  // where you came from to get to post 2
+			vDC[0] = 0;		// the cost to get to the start
+			vDC[1] = posts.get(0).get(1); // the cost to get to the second post
+			return; // here the sub problem solutions are stored in array vDC
 		}
-		divideConquerFake(n-1);
-		vDC[n-1] = posts.get(0).get(n-1);
+		divideConquerFake(n-1); // call the smaller sub problem
+		vDC[n-1] = posts.get(0).get(n-1); // get cost to get to "n" from the start
 		sequenceFake[n-1] = 0;
 		int temp = vDC[n-1];
-		for (int i = 1; i < n; i++) {
+		for (int i = 1; i < n; i++) { // check all other paths
 			vDC[n-1] = Math.min(vDC[n-1], posts.get(i).get(n-1) + vDC[i]);
 			if (temp != vDC[n-1]) sequenceFake[n-1] = i;
 			temp = vDC[n-1];
@@ -125,12 +131,13 @@ public class tcss343 {
 		return;
 	}
 	
+	// This function brute forces the solution but only considers the set of posts that include the start and finish post.
 	static int brute(Set<Set<Integer>> i) {
-		int v = Integer.MAX_VALUE;
+		int v = Integer.MAX_VALUE; // max this value for first call to Math.min
 		int last = 0;
 		int temp = 0;
-		for (Set<Integer> set : i) {
-			for (Integer post : set) {
+		for (Set<Integer> set : i) { // look through each sub set 
+			for (Integer post : set) { // go through all posts of the set
 				temp += posts.get(last).get(post);
 				last = post;		
 			}
@@ -142,6 +149,7 @@ public class tcss343 {
 		return v;
 	}
 	
+	// This function prints the order taken to get to the end
 	static void sequence(int[] seq) {
 		List<Integer> solution = new ArrayList<Integer>();
 		solution.add(0, n);
@@ -155,6 +163,7 @@ public class tcss343 {
 		System.out.println();
 	}
 	
+	// This method generates the random test files.
 	static void createTestFiles() throws IOException {
 		int[] testN = {100, 200, 400, 600, 800};
 		int offset = 0;
@@ -179,6 +188,7 @@ public class tcss343 {
 		}
 	}
 
+	// This creates the set of sets for the brute force method to check
 	static Set<Set<Integer>> powerSet(int n) {
 		SortedSet<Integer> stops = new TreeSet<Integer>();
 		for (int i = 1; i < n-1; i++) {
@@ -191,7 +201,8 @@ public class tcss343 {
 		}
 		return index;
 	}
-
+	
+	// helper function for the creating of the sets
 	static Set<Set<Integer>> makeSet(Set<Integer> theSet) {
 		Set<Set<Integer>> sets = new HashSet<Set<Integer>>();
 		if (theSet.isEmpty()) {
@@ -211,6 +222,7 @@ public class tcss343 {
 		return sets;
 	}
 
+	// this method is used to test the set making methods.
 	static void printSets(Set<Set<Integer>> theSets) {
 		for (Set<Integer> set : theSets) {
 			for (Integer i : set) {
