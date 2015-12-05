@@ -8,12 +8,16 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 import java.util.Scanner;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
+import java.util.HashSet;
 
 public class tcss343 {
 	
 	static int[] sequenceDC;	
 	static int[] sequenceDP;
-	static int[] sequenceBrute;
+	static Set<Integer> sequenceBrute;
 	static int[] sequenceFake;
 	static int[] vDC;
 	static List<ArrayList<Integer>> posts;
@@ -43,17 +47,20 @@ public class tcss343 {
 		scan2.close();
 		
 		n = posts.get(0).size();		
+		Set<Set<Integer>> bruteIndex = powerSet(n);
+		printSets(bruteIndex);
 		sequenceDP = new int[n];
 		sequenceDC = new int[n];
-		sequenceBrute = new int[n];
 		sequenceFake = new int[n];
 		vDC = new int[n];
 		
 		dynamicProgramming();		
 		System.out.println("Brute:");
-		System.out.println(brute(n));	
-		sequence(sequenceBrute);
-		System.out.println("\nDivide and Conquer:");
+		System.out.println(brute(powerSet(n)));	
+		for (Integer i : sequenceBrute) {
+			System.out.print((i+1) + " ");
+		}
+		System.out.println("\n\nDivide and Conquer:");
 		System.out.println(divideConquer(n));
 		sequence(sequenceDC);
 		System.out.println("\nDynamic Programming:");
@@ -84,13 +91,14 @@ public class tcss343 {
 	} 
 	
 	static int divideConquer(int n) {
-		if (n == 2) {
-			return posts.get(0).get(n-1);
+		if (n == 1) {
+			sequenceDC[0] = -1;
+			return 0;
 		}
 		int v = posts.get(0).get(n-1);
 		int temp = v;
 		for (int i = 1; i < n-1; i++) {
-			v = Math.min(v, posts.get(i).get(n-1) + brute(i+1));
+			v = Math.min(v, posts.get(i).get(n-1) + divideConquer(i+1));
 			if (temp != v) sequenceDC[n-1] = i;
 			temp = v;
 		}		
@@ -117,18 +125,19 @@ public class tcss343 {
 		return;
 	}
 	
-	static int brute(int n) {
-		if (n == 1) {
-			sequenceBrute[0] = -1;
-			return 0;
-		}
-		int v = posts.get(0).get(n-1) + brute (1);
-		sequenceBrute[n-1] = 0;
-		int temp = v;
-		for (int i = 2; i < n; i++) {
-			v = Math.min(v, brute(i) + posts.get(i-1).get(n-1));
-			if (temp != v) sequenceBrute[n-1] = i-1;
-			temp = v;
+	static int brute(Set<Set<Integer>> i) {
+		int v = Integer.MAX_VALUE;
+		int last = 0;
+		int temp = 0;
+		for (Set<Integer> set : i) {
+			for (Integer post : set) {
+				temp += posts.get(last).get(post);
+				last = post;		
+			}
+			v = Math.min(v, temp);
+			if (temp == v) sequenceBrute = set;
+			temp = 0;
+			last = 0;
 		}
 		return v;
 	}
@@ -167,6 +176,47 @@ public class tcss343 {
 				offset++;
 			}
 			out.close();
+		}
+	}
+
+	static Set<Set<Integer>> powerSet(int n) {
+		SortedSet<Integer> stops = new TreeSet<Integer>();
+		for (int i = 1; i < n-1; i++) {
+			stops.add(i);
+		}
+		Set<Set<Integer>> index = makeSet(stops);
+		for (Set<Integer> sets : index) {
+			sets.add(0);
+			sets.add(n-1);
+		}
+		return index;
+	}
+
+	static Set<Set<Integer>> makeSet(Set<Integer> theSet) {
+		Set<Set<Integer>> sets = new HashSet<Set<Integer>>();
+		if (theSet.isEmpty()) {
+			sets.add(new TreeSet<Integer>());
+			return sets;
+		}
+		List<Integer> list = new ArrayList<Integer>(theSet);
+		Integer first = list.get(0);
+		Set<Integer> rest = new TreeSet<Integer>(list.subList(1, list.size()));
+		for (Set<Integer> set : makeSet(rest)) {
+			Set<Integer> newSet = new TreeSet<Integer>();
+			newSet.add(first);
+			newSet.addAll(set);
+			sets.add(newSet);
+			sets.add(set);
+		}
+		return sets;
+	}
+
+	static void printSets(Set<Set<Integer>> theSets) {
+		for (Set<Integer> set : theSets) {
+			for (Integer i : set) {
+				System.out.print(i + " ");	
+			}
+			System.out.println();
 		}
 	}
 }
