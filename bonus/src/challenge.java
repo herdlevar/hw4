@@ -1,3 +1,12 @@
+/* 
+ * Jared Herdlevar, Demy Loulias, Gabrielle Glynn
+ * TCSS 343 Project/HW4: Bonus
+ * Fall 2015: Due December 8, 2015
+ * 
+ * This program implements brute force to find the largest
+ * square submatrix within a matrix that contains no "stones." 
+ */
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;

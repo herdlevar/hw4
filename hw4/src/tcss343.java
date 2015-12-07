@@ -1,4 +1,12 @@
-
+/* 
+ * Jared Herdlevar, Demy Loulias, Gabrielle Glynn
+ * TCSS 343 Project/HW4: Trading Post Problem
+ * Fall 2015: Due December 8, 2015
+ * 
+ * This program implements brute force, divide and conquer,
+ * and dynamic programming to find the cheapest solution as
+ * defined by the problem statement. 
+ */
 
 import java.io.FileWriter;
 import java.io.IOException;
