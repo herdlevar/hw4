@@ -25,7 +25,7 @@ public class tcss343 {
 	static int brute;
 
 	public static void main(String[] args) throws IOException {
-		// createTestFiles();
+		createTestFiles();
 		
 		// Read the input file
 		Scanner scan = new Scanner(System.in);
@@ -67,7 +67,9 @@ public class tcss343 {
 		System.out.println(divideConquer(n));
 		sequence(sequenceDC);
 		System.out.println("\nDynamic Programming:");
+		long start = System.currentTimeMillis();
 		System.out.println(dynamicProgramming());
+		System.out.println("DP took: " + (System.currentTimeMillis() - start) + " ms");
 		sequence(sequenceDP);
 		System.out.println("\nDivide and Conquer with \"memory\":");
 		divideConquerFake(n);
